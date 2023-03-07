@@ -1,0 +1,21 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build",
+    "start": "start npm run watch & npm run start:host",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/data-tables": "^13.2.1",
+    "openai": "^3.2.1"
+  },
+  "devDependencies": {
+    "@azure/functions": "^2.0.0",
+    "@types/node": "14.x",
+    "typescript": "^4.0.0"
+  }
+}
