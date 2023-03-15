@@ -19,7 +19,8 @@
 		{
 			"type": "shell",
 			"label": "npm install (functions)",
-			"command": "npm install"
+			"command": "npm install",
+			"dependsOn":"Watch backend"
 		},
 		{
 			"type": "shell",
@@ -27,6 +28,16 @@
 			"command": "npm prune --production",
 			"dependsOn": "npm build (functions)",
 			"problemMatcher": []
-		}
+		},
+		{
+            "label": "Watch backend",
+            "type": "shell",
+            "command": "npm run watch",
+            "isBackground": true,
+            "problemMatcher": "$tsc-watch",
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
 	]
 }
