@@ -73,6 +73,7 @@ export async function getGraphData(
         Accept: "application/json",
         Authorization: "Bearer " + accessToken,
         "Cache-Control": "private, no-cache, no-store, must-revalidate",
+        Prefer: "outlook.body-content-type='text'",
       },
     };
 
@@ -81,7 +82,8 @@ export async function getGraphData(
         headers: options.headers,
       });
       if (response.status === 200) {
-        const parsedBody = JSON.parse(response.data);
+        const parsedBody = response.data;
+        const formatedarr = transformToMailArray(parsedBody);
         resolve(parsedBody);
       } else {
         const error = new MyError();
@@ -99,4 +101,18 @@ export async function getGraphData(
       reject(error);
     }
   });
+}
+function transformToMailArray(obj) {
+  const mails = [];
+  const messages = obj.value;
+  messages.forEach((message) => {
+    const mail = {
+      subject: message.subject,
+      body: message.body.content,
+      receiver: message.toRecipients[0].emailAddress.address,
+      sender: message.sender.emailAddress.address,
+    };
+    mails.push(mail);
+  });
+  return mails;
 }
