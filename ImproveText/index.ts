@@ -1,5 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { Configuration, OpenAIApi } from "openai";
+import axios from "axios";
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -10,6 +11,10 @@ const httpTrigger: AzureFunction = async function (
 ): Promise<void> {
   const openai = new OpenAIApi(configuration);
   console.log(openai);
+  const mailsHistoric = await axios.get(
+    `${process.env.REACT_APP_FUNC_ENDPOINT}getGraphData?conversationId=${req.query.conversationId}`,
+    { headers: { Authorization: req.headers.authorization } }
+  );
   const textSummurize = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     temperature: 0.5,
