@@ -18,10 +18,10 @@ class MyError extends Error {
   bodyMessage?: string;
 }
 
-export async function getUserData(req: any, res: any) {
+export async function getUserData(req: any, res: any,context:any) {
   const authorization: string = req.headers.authorization;
 
-  const graphTokenResponse = await getAccessToken(authorization);
+  const graphTokenResponse = await getAccessToken(authorization,context);
   try {
     if (
       graphTokenResponse &&

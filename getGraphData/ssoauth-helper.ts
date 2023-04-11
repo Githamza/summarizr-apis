@@ -14,7 +14,7 @@ import axios from "axios";
 const DISCOVERY_KEYS_ENDPOINT =
   "https://login.microsoftonline.com/common/discovery/v2.0/keys";
 
-export async function getAccessToken(authorization: string): Promise<any> {
+export async function getAccessToken(authorization: string,context:any): Promise<any> {
   if (!authorization) {
     let error = new Error("No Authorization header was found.");
     return Promise.reject(error);
@@ -60,7 +60,7 @@ export async function getAccessToken(authorization: string): Promise<any> {
     } catch (error) {
       console.log(error);
     }
-
+context.log("test",tokenResponse)
     return tokenResponse.data;
   }
 }

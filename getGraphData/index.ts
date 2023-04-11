@@ -7,11 +7,12 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   const value = await validateJwt(req, context.res);
-  const userData = await getUserData(req, context.res);
+  context.log(req.headers.authorization)
+  const userData = await getUserData(req, context.res,context);
   console.log(value);
   context.res = {
     // status: 200, /* Defaults to 200 */
-    body: "test",
+    body: userData,
   };
 };
 
