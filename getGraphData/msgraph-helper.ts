@@ -6,6 +6,8 @@ import * as https from "https";
 import { getAccessToken } from "./ssoauth-helper";
 import * as createError from "http-errors";
 import axios from "axios";
+import { resolve } from "path";
+import { rejects } from "assert";
 
 /* global process */
 
@@ -18,46 +20,54 @@ class MyError extends Error {
   bodyMessage?: string;
 }
 
-export async function getUserData(req: any, res: any,context:any) {
-  const authorization: string = req.headers.authorization;
+export async function getUserData(req: any, res: any, context: any) {
+  return new Promise(async (resolve, rejects) => {
+    const authorization: string = req.headers.authorization;
 
-  const graphTokenResponse = await getAccessToken(authorization,context);
-  try {
-    if (
-      graphTokenResponse &&
-      (graphTokenResponse.claims || graphTokenResponse.error)
-    ) {
-      res.send(graphTokenResponse);
-    } else {
-      const graphToken: string = graphTokenResponse.access_token;
-      const graphUrlSegment: string =
-        process.env.GRAPH_URL_SEGMENT || `/me/messages/`;
-      const graphQueryParamSegment: string =
-        process.env.QUERY_PARAM_SEGMENT ||
-        `?$filter= conversationId eq '${req.query.conversationId}'`;
-
-      const graphData = await getGraphData(
-        graphToken,
-        graphUrlSegment,
-        graphQueryParamSegment
-      );
-
-      // If Microsoft Graph returns an error, such as invalid or expired token,
-      // there will be a code property in the returned object set to a HTTP status (e.g. 401).
-      // Relay it to the client. It will caught in the fail callback of `makeGraphApiCall`.
-      if (graphData.code) {
-        createError(
-          graphData.code,
-          "Microsoft Graph error " + JSON.stringify(graphData)
-        );
+    const graphTokenResponse = await getAccessToken(authorization, context);
+    context.log(graphTokenResponse);
+    try {
+      if (
+        graphTokenResponse &&
+        (graphTokenResponse.claims || graphTokenResponse.error)
+      ) {
+        res.send(graphTokenResponse);
       } else {
-        res.send(graphData);
+        const graphToken: string = graphTokenResponse.access_token;
+        context.log(graphToken);
+        const graphUrlSegment: string =
+          process.env.GRAPH_URL_SEGMENT || `/me/messages/`;
+        const graphQueryParamSegment: string =
+          process.env.QUERY_PARAM_SEGMENT ||
+          `?$filter= conversationId eq '${req.query.conversationId}'`;
+        context.log({ graphToken, graphUrlSegment, graphQueryParamSegment });
+
+        const graphData = await getGraphData(
+          graphToken,
+          graphUrlSegment,
+          graphQueryParamSegment
+        );
+
+        // If Microsoft Graph returns an error, such as invalid or expired token,
+        // there will be a code property in the returned object set to a HTTP status (e.g. 401).
+        // Relay it to the client. It will caught in the fail callback of `makeGraphApiCall`.
+        if (graphData.code) {
+          context.log("Microsoft Graph error " + JSON.stringify(graphData));
+          createError(
+            graphData.code,
+            "Microsoft Graph error " + JSON.stringify(graphData)
+          );
+          rejects(graphData);
+        } else {
+          context.log("graphdata", graphData);
+          resolve(graphData);
+        }
       }
+    } catch (err) {
+      res.status(401).send(err.message);
+      return;
     }
-  } catch (err) {
-    res.status(401).send(err.message);
-    return;
-  }
+  });
 }
 
 export async function getGraphData(
@@ -84,7 +94,7 @@ export async function getGraphData(
       if (response.status === 200) {
         const parsedBody = response.data;
         const formatedarr = transformToMailArray(parsedBody);
-        resolve(parsedBody);
+        resolve(formatedarr);
       } else {
         const error = new MyError();
         error.code = response.status;

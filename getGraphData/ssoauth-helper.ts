@@ -65,13 +65,14 @@ context.log("test",tokenResponse)
   }
 }
 
-export function validateJwt(req, res): Promise<boolean> {
+export function validateJwt(req, res,context): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const authHeader = req.headers.authorization;
     if (authHeader) {
+     context.log(process.env.CLIENT_ID)
       const token = authHeader.split(" ")[1];
       const validationOptions = {
-        audience: process.env.CLIENT_ID,
+        audience: `${process.env.CLIENT_ID}`,
       };
 
       const verif = jwt.verify(
@@ -80,8 +81,8 @@ export function validateJwt(req, res): Promise<boolean> {
         validationOptions,
         (err) => {
           if (err) {
-            console.log(err);
-            reject(res.sendStatus(403));
+            context.log(err);
+            reject(res.send({status:403,body:err.message}));
             //return res.sendStatus(403);
           }
 

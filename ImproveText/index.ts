@@ -10,12 +10,14 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   const openai = new OpenAIApi(configuration);
-  console.log(openai);
+  context.log(openai);
   try {
+    context.log("get here")
   const mailsHistoric = await axios.get(
     `${process.env.REACT_APP_FUNC_ENDPOINT}getGraphData?conversationId=${req.query.conversationId}`,
     { headers: { Authorization: req.headers.authorization } }
     );
+    context.log("mails",mailsHistoric)
     const textReformuled = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       temperature: 0.5,
@@ -37,7 +39,7 @@ const httpTrigger: AzureFunction = async function (
           role: "user",
           content: "l'historique de la conversation ",
         },
-        { role: "user", content: JSON.stringify(mailsHistoric.data.value) },
+        { role: "user", content: JSON.stringify(mailsHistoric.data) },
       ],
       // prompt: `${req.body.text.join("\n")}.\n résume ce texte en ${
       //   req.body.language
@@ -48,10 +50,10 @@ const httpTrigger: AzureFunction = async function (
     context.res.body = textReformuled.data.choices[0].message.content;
     context.done();
   } catch (error) {
-    console.log(error);
+    context.log(error);
     context.res= {
       status:500,
-      body:error.message
+      body:"message:"+ error.message
     }
   }
 };
