@@ -16,17 +16,23 @@ const httpTrigger: AzureFunction = async function (
           rowKey: req.query.userId,
         };
         context.log(data);
-        const usersCredit = await tableClient.listEntities({
-          queryOptions: {
-            filter: odata`PartitionKey eq ${data.partitionKey} and RowKey eq ${data.rowKey}`,
-          },
-        });
-        for await (const userCredit of usersCredit) {
-          context.log(userCredit);
-          context.res.body = userCredit;
+        let userCredit;
+        try {
+          userCredit = await tableClient.getEntity(
+            data.partitionKey,
+            data.rowKey
+          );
+        } catch (error) {
+          error.statusCode === 404 ? (userCredit = null) : null;
         }
-        const res = await tableClient.createEntity({ ...data, credits: 5 });
-        console.log(res);
+
+        if (!userCredit) {
+          const res = await tableClient.createEntity({ ...data, credits: 5 });
+          context.res.body = {...res,isFirstTime:true};
+        } else {
+          context.res.body = {...userCredit,isFirstTime:false};
+        }
+
         context.done();
         break;
       case "POST":
@@ -39,7 +45,7 @@ const httpTrigger: AzureFunction = async function (
           bodyData.rowKey
         );
         const newCredits =
-          entity.credits > 0 ? (entity.credits as number) - 1 : 0;
+          entity.credits as number > 0 ? (entity.credits as number) - 1 : 0;
         await tableClient.upsertEntity({ ...bodyData, credits: newCredits });
         context.res.body = {
           ...bodyData,
