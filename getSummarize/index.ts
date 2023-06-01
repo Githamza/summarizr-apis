@@ -7,6 +7,7 @@
 import { Context, HttpRequest } from "@azure/functions";
 
 import { Configuration, OpenAIApi } from "openai";
+import axios from "axios";
 
 interface Response {
   status: number;
@@ -33,7 +34,10 @@ interface Response {
  */
 
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+  basePath: `${process.env.AZURE_OPEN_AI_ENDPOINT}/openai/deployments/summarizR/chat/completions?api-version=2023-03-15-preview`,
+});
+const configurationDavinci = new Configuration({
+  basePath: `${process.env.AZURE_OPEN_AI_ENDPOINT}/openai/deployments/summarizrDavinci/completions?api-version=2023-03-15-preview`,
 });
 
 export default async function run(
@@ -45,53 +49,99 @@ export default async function run(
     status: 200,
     body: {},
   };
+  const reason = req.body.reason;
   try {
-    const openai = new OpenAIApi(configuration);
-    console.log(openai);
-    const textSummurize = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      temperature: 0.5,
-      n: 1,
-      messages: [
-        {
-          role: "system",
-          content: "tu es un expert en comprehension des mails et les résumer ",
-        },
-        {
-          role: "user",
-          content:
-            `fais moi un résumé en
-            ${req.body.language} de ce mail venant de ${req.body.sender}: ` +
-            req.body.text,
-        },
-      ],
-      // prompt: `${req.body.text.join("\n")}.\n résume ce texte en ${
-      //   req.body.language
-      // }    `,
-      max_tokens: 400,
-    });
-    const actions = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      temperature: 0.5,
-      n: 1,
-      messages: [
-        {
-          role: "system",
-          content: "tu es un expert en comprehension des mails et les résumer ",
-        },
-        {
-          role: "user",
-          content: `trouve moi, quelques actions les plus importantes discutées , ta réponse devrait être en ${req.body.language} en bullet points. voici le text: ${req.body.text}`,
-        },
-      ],
-      max_tokens: 400,
-    });
-    context.res.body = {
-      summurize: textSummurize.data.choices[0].message.content,
-      actions: actions.data.choices[0].message.content,
-    };
+    switch (reason) {
+      case "SUM_MAIL":
+        // const textSummarize = await axios.post(
+        //   configuration.basePath,
+        //   {
+        //     messages: [
+        //       {
+        //         role: "system",
+        //         content:
+        //         "You are an AI assistant that helps people  summarizing emails in shot texts that does not surpass 20 words",
+        //       },
+        //       {
+        //         role: "user",
+        //         content:
+        //           `fais moi un résumé en
+        //         ${req.body.language} de ce mail venant de ${req.body.sender}: ` +
+        //           req.body.text,
+        //       }
+        //     ],
+        //     // prompt: `${req.body.text.join("\n")}.\n résume ce texte en ${
+        //     //   req.body.language
+        //     // }    `,
+        //     max_tokens: 400,
+        //     stream: true,
+        //   },
+        //   {
+        //     headers: {
+        //       "api-key": process.env.AZURE_OPEN_AI_KEY,
+        //       "Content-Type": "application/json",
+        //     },
+        //   }
+        // );
+        const textSummarize = await axios.post(
+          configurationDavinci.basePath,
+          {
+            prompt: 
+                `You are a helpful assistant expert on summarizing shortly mails .summurize in ${req.body.language} this mail comming from  ${req.body.sender}: `+req.body.text,
+            max_tokens: 400,
+            temperature:0.7,
+            top_p:1.0,
+            stream: true,
+          } ,
+          {
+            headers: {
+              "api-key": process.env.AZURE_OPEN_AI_KEY,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-    context.log("HTTP trigger function processed a request.");
+        context.res.headers = {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        };
+        context.res.body = textSummarize.data;
+
+        context.log("HTTP trigger function processed a request.");
+
+        break;
+      case "SUM_GLANCE":
+        const actions = await axios.post(
+          configurationDavinci.basePath,
+          {
+            prompt: 
+                  `you are a useful ai assistant expert on summarizing shortly mails in bullet points. write the most 3 important actions discussed in the mail  , your response should be in ${req.body.language} and in bullet points format. here's the mail: ${req.body.text}` ,
+            max_tokens: 400,
+            stream: true,
+          },
+          {
+            headers: {
+              "api-key": process.env.AZURE_OPEN_AI_KEY,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        context.res.headers = {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        };
+        context.res.body = actions.data;
+
+        context.log("HTTP trigger function processed a request.");
+
+        break;
+
+      default:
+        break;
+    }
   } catch (error) {
     context.log(error);
     context.res.status = 500;
@@ -99,7 +149,11 @@ export default async function run(
   }
 
   // Put an echo into response body.
-  context.res.body.receivedHTTPRequestBody = req.body || "";
 
   return;
+}
+function formatSSEData(dataArray: any[]): string {
+  return dataArray
+    .map((data, index) => `data: ${JSON.stringify(data)}\n\n`)
+    .join("");
 }

@@ -1,5 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { odata, TableClient } from "@azure/data-tables";
+
+
 const tableClient = TableClient.fromConnectionString(
   process.env.AzureWebJobsStorage,
   "credits"
@@ -15,7 +17,6 @@ const httpTrigger: AzureFunction = async function (
           partitionKey: req.query.tenantId,
           rowKey: req.query.userId,
         };
-        context.log(data);
         let userCredit;
         try {
           userCredit = await tableClient.getEntity(

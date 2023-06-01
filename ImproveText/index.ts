@@ -1,60 +1,50 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { Configuration, OpenAIApi } from "openai";
 import axios from "axios";
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import LanguageDetect = require('languagedetect');
 
+const configuration = new Configuration({
+  basePath: `${process.env.AZURE_OPEN_AI_ENDPOINT}/openai/deployments/summarizR/chat/completions?api-version=2023-03-15-preview`,
+});
+const configurationDavinci = new Configuration({
+  basePath: `${process.env.AZURE_OPEN_AI_ENDPOINT}/openai/deployments/summarizrDavinci/completions?api-version=2023-03-15-preview`,
+});
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
+  const lngDetector = new LanguageDetect();
   const openai = new OpenAIApi(configuration);
-  context.log(openai);
   try {
-    context.log("get here")
-  const mailsHistoric = await axios.get(
-    `${process.env.REACT_APP_FUNC_ENDPOINT}getGraphData?conversationId=${req.query.conversationId}`,
-    { headers: { Authorization: req.headers.authorization } }
-    );
-    context.log("mails",mailsHistoric)
-    const textReformuled = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      temperature: 0.5,
-      n: 1,
-      messages: [
-        {
-          role: "system",
-          content: `tu es un expert en rédaction de mails , je te fournis un texte que tu dois reformuler en mail plus professionnelle, je te fournis aussi l'historique de tous les échanges précédents que tu utiliseras pour comprendre le contexte. réponds moi juste avec le mail à envoyer`,
-        },
-        {
-          role: "user",
-          content: req.body.response,
-        },
-        {
-          role: "user",
-          content: "c'est la réponse écrite, à reformuler ",
-        },
-        {
-          role: "user",
-          content: "l'historique de la conversation ",
-        },
-        { role: "user", content: JSON.stringify(mailsHistoric.data) },
-      ],
-      // prompt: `${req.body.text.join("\n")}.\n résume ce texte en ${
-      //   req.body.language
-      // }    `,
-      max_tokens: 400,
-    });
+    const mailsHistoric = await axios.get(
+      `${process.env.REACT_APP_FUNC_ENDPOINT}getGraphData?conversationId=${req.query.conversationId}`,
+      { headers: { Authorization: req.headers.authorization } }
+      );
+      const language =await lngDetector.detect( JSON.stringify(mailsHistoric.data))[0][0]
 
-    context.res.body = textReformuled.data.choices[0].message.content;
+    context.log("mails");
+    const textReformuled = await axios.post(
+      configurationDavinci.basePath,
+      {
+        prompt:`you are a helpful ai assistant, help me to write a professional reply. here's the draft reply : "${JSON.stringify(req.body.response.split("From:")[0])} ". I'm giving you also the mail history so that you can write a better contextualized reply. Here's the discussion history: "${JSON.stringify(mailsHistoric.data)}" your response should be in ${language} and don't add name and position signature at the end`,
+        max_tokens: 1000,
+      },
+      {
+        headers: {
+          "api-key": process.env.AZURE_OPEN_AI_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    context.res.body = JSON.stringify(textReformuled.data.choices[0].text);
     context.done();
   } catch (error) {
-    context.log(error);
-    context.res= {
-      status:500,
-      body:"message:"+ error.message
-    }
+    context.log(error.message);
+    context.res = {
+      status: 500,
+      body: "message:" + error,
+    };
   }
 };
 

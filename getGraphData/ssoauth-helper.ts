@@ -60,7 +60,6 @@ export async function getAccessToken(authorization: string,context:any): Promise
     } catch (error) {
       console.log(error);
     }
-context.log("test",tokenResponse)
     return tokenResponse.data;
   }
 }
@@ -69,7 +68,6 @@ export function validateJwt(req, res,context): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const authHeader = req.headers.authorization;
     if (authHeader) {
-     context.log(process.env.CLIENT_ID)
       const token = authHeader.split(" ")[1];
       const validationOptions = {
         audience: `${process.env.CLIENT_ID}`,

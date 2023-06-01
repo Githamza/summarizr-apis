@@ -23,9 +23,7 @@ class MyError extends Error {
 export async function getUserData(req: any, res: any, context: any) {
   return new Promise(async (resolve, rejects) => {
     const authorization: string = req.headers.authorization;
-
     const graphTokenResponse = await getAccessToken(authorization, context);
-    context.log(graphTokenResponse);
     try {
       if (
         graphTokenResponse &&
@@ -34,13 +32,11 @@ export async function getUserData(req: any, res: any, context: any) {
         res.send(graphTokenResponse);
       } else {
         const graphToken: string = graphTokenResponse.access_token;
-        context.log(graphToken);
         const graphUrlSegment: string =
           process.env.GRAPH_URL_SEGMENT || `/me/messages/`;
         const graphQueryParamSegment: string =
           process.env.QUERY_PARAM_SEGMENT ||
           `?$filter= conversationId eq '${req.query.conversationId}'`;
-        context.log({ graphToken, graphUrlSegment, graphQueryParamSegment });
 
         const graphData = await getGraphData(
           graphToken,
@@ -59,7 +55,6 @@ export async function getUserData(req: any, res: any, context: any) {
           );
           rejects(graphData);
         } else {
-          context.log("graphdata", graphData);
           resolve(graphData);
         }
       }

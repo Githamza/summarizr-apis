@@ -6,10 +6,9 @@ const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
-  context.log(req.headers.authorization)
   //const value = await validateJwt(req, context.res,context);
   //context.log(value);
-  context.log(req.headers.authorization)
+  context.log("graph data")
   const userData = await getUserData(req, context.res,context);
   context.res = {
     // status: 200, /* Defaults to 200 */
