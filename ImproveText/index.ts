@@ -16,17 +16,20 @@ const httpTrigger: AzureFunction = async function (
   const lngDetector = new LanguageDetect();
   const openai = new OpenAIApi(configuration);
   try {
-    const mailsHistoric = await axios.get(
-      `${process.env.REACT_APP_FUNC_ENDPOINT}getGraphData?conversationId=${req.query.conversationId}`,
-      { headers: { Authorization: req.headers.authorization } }
-      );
-      const language =await lngDetector.detect( JSON.stringify(mailsHistoric.data))[0][0]
+    context.log("mails");
+    context.log(req.headers);
+
+    // const mailsHistoric = await axios.get(
+    //   `${process.env.REACT_APP_FUNC_ENDPOINT}getGraphData?conversationId=${encodeURIComponent(req.query.conversationId)}`,
+    //   { headers: { Authorization: req.headers.authorization } }
+    //   );
+      const language =await lngDetector.detect(JSON.stringify(req.body.response))
 
     context.log("mails");
     const textReformuled = await axios.post(
       configurationDavinci.basePath,
       {
-        prompt:`you are a helpful ai assistant, help me to write a professional reply. here's the draft reply : "${JSON.stringify(req.body.response.split("From:")[0])} ". I'm giving you also the mail history so that you can write a better contextualized reply. Here's the discussion history: "${JSON.stringify(mailsHistoric.data)}" your response should be in ${language} and don't add name and position signature at the end`,
+        prompt:`you are a helpfull ai assistant, help me to write a professional reply. your response should be in ${language} and don't add name or signature at the end. Here's the draft reply that contains also the history exchange, I get it using Officejs library by using Office.context.mailbox.item.body.getAsync , so you should undestand the exchange in this format : "${JSON.stringify(req.body.response)} ".`,
         max_tokens: 1000,
       },
       {
@@ -36,11 +39,11 @@ const httpTrigger: AzureFunction = async function (
         },
       }
     );
-
+context.log({textReformuled})
     context.res.body = JSON.stringify(textReformuled.data.choices[0].text);
     context.done();
   } catch (error) {
-    context.log(error.message);
+    context.log( "error here now ",error);
     context.res = {
       status: 500,
       body: "message:" + error,

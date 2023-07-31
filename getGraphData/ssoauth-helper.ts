@@ -19,7 +19,7 @@ export async function getAccessToken(authorization: string,context:any): Promise
     let error = new Error("No Authorization header was found.");
     return Promise.reject(error);
   } else {
-    const scopeName: string = process.env.SCOPE || "User.Read";
+    const scopeName: string = process.env.SCOPE || "https://graph.microsoft.com/.default";
     const [, /* schema */ assertion] = authorization.split(" ");
 
     const tokenScopes = (jwt.decode(assertion) as jwt.JwtPayload).scp.split(
@@ -45,6 +45,7 @@ export async function getAccessToken(authorization: string,context:any): Promise
     const tenant: string = "common";
     const tokenURLSegment: string = "oauth2/v2.0/token";
     const encodedForm = form(formParams);
+    context.log("formparams",formParams)
     let tokenResponse;
     try {
       tokenResponse = await axios.post(
@@ -57,9 +58,11 @@ export async function getAccessToken(authorization: string,context:any): Promise
           },
         }
       );
+
     } catch (error) {
-      console.log(error);
+      context.log("error here", error);
     }
+    context.log("token response ",tokenResponse)
     return tokenResponse.data;
   }
 }

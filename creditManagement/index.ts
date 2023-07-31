@@ -3,7 +3,7 @@ import { odata, TableClient } from "@azure/data-tables";
 
 
 const tableClient = TableClient.fromConnectionString(
-  process.env.AzureWebJobsStorage,
+  process.env.AzureWebJobsStorage || "",
   "credits"
 );
 const httpTrigger: AzureFunction = async function (

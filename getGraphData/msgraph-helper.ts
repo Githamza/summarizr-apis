@@ -36,7 +36,7 @@ export async function getUserData(req: any, res: any, context: any) {
           process.env.GRAPH_URL_SEGMENT || `/me/messages/`;
         const graphQueryParamSegment: string =
           process.env.QUERY_PARAM_SEGMENT ||
-          `?$filter= conversationId eq '${req.query.conversationId}'`;
+          `?$filter= conversationId eq '${encodeURIComponent(req.query.conversationId)}'`;
 
         const graphData = await getGraphData(
           graphToken,
