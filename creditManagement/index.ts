@@ -1,7 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { odata, TableClient } from "@azure/data-tables";
 
-
 const tableClient = TableClient.fromConnectionString(
   process.env.AzureWebJobsStorage || "",
   "credits"
@@ -28,13 +27,18 @@ const httpTrigger: AzureFunction = async function (
         }
 
         if (!userCredit) {
-          const res = await tableClient.createEntity({ ...data, credits: 5 });
-          context.res.body = {...res,isFirstTime:true};
+          const res = await tableClient.createEntity({
+            ...data,
+            upn: req.query.upn,
+            name: req.query.name,
+            unique_name: req.query.unique_name,
+            credits: 30,
+          });
+          context.res.body = { ...res, isFirstTime: true };
         } else {
-          context.res.body = {...userCredit,isFirstTime:false};
+          context.res.body = { ...userCredit, isFirstTime: false };
         }
 
-        context.done();
         break;
       case "POST":
         const bodyData = {
@@ -46,13 +50,12 @@ const httpTrigger: AzureFunction = async function (
           bodyData.rowKey
         );
         const newCredits =
-          entity.credits as number > 0 ? (entity.credits as number) - 1 : 0;
+          (entity.credits as number) > 0 ? (entity.credits as number) - 1 : 0;
         await tableClient.upsertEntity({ ...bodyData, credits: newCredits });
         context.res.body = {
           ...bodyData,
           credits: newCredits,
         };
-        context.done();
         break;
     }
   } catch (error) {

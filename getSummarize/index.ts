@@ -6,8 +6,6 @@
 // Import polyfills for fetch required by msgraph-sdk-javascript.
 import { Context, HttpRequest } from "@azure/functions";
 
-import { Configuration, OpenAIApi } from "openai";
-import axios from "axios";
 import { getSummary } from "../utils/typechatService";
 import { errorHandler } from "../utils/handleErrors";
 
@@ -49,21 +47,20 @@ export default async function run(
     switch (reason) {
       case "SUM_MAIL":
         const prompt =
-          `Summurize in ${req.body.language} this mail comming from  ${req.body.sender}: ` +
-          req.body.text;
+          `Summurize in ${req.body.language} this mail ` + req.body.text;
         let textSummarize;
         try {
-          textSummarize = await getSummary(prompt);
+          textSummarize = await getSummary(prompt, "SUM_MAIL", context);
         } catch (error) {
           errorHandler(error, context);
         }
- 
+
+        console.log({ textSummarize });
         context.res.body = textSummarize.data;
 
         context.log("HTTP trigger function processed a request.");
 
         break;
-
     }
   } catch (error) {
     context.log(error);
@@ -75,4 +72,3 @@ export default async function run(
 
   return;
 }
-
