@@ -6,8 +6,8 @@
 // Import polyfills for fetch required by msgraph-sdk-javascript.
 import { Context, HttpRequest } from "@azure/functions";
 
-import { getSummary } from "../utils/typechatService";
 import { errorHandler } from "../utils/handleErrors";
+import { getSummary } from "../utils/typechatServiceSummarize";
 
 interface Response {
   status: number;
@@ -42,26 +42,19 @@ export default async function run(
     status: 200,
     body: {},
   };
-  const reason = req.body.reason;
   try {
-    switch (reason) {
-      case "SUM_MAIL":
-        const prompt =
-          `Summurize in ${req.body.language} this mail ` + req.body.text;
-        let textSummarize;
-        try {
-          textSummarize = await getSummary(prompt, "SUM_MAIL", context);
-        } catch (error) {
-          errorHandler(error, context);
-        }
-
-        console.log({ textSummarize });
-        context.res.body = textSummarize.data;
-
-        context.log("HTTP trigger function processed a request.");
-
-        break;
+    const prompt = req.body.text;
+    let textSummarize;
+    try {
+      textSummarize = await getSummary(req.body.language, prompt, context);
+    } catch (error) {
+      errorHandler(error, context);
     }
+
+    console.log({ textSummarize });
+    context.res.body = textSummarize.data;
+
+    context.log("HTTP trigger function processed a request.");
   } catch (error) {
     context.log(error);
     context.res.status = 500;

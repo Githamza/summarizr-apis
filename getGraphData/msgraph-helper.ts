@@ -23,7 +23,7 @@ class MyError extends Error {
 export async function getUserData(req: any, res: any, context: any) {
   return new Promise(async (resolve, rejects) => {
     const authorization: string = req.headers.authorization;
-    // const graphTokenResponse = await getAccessToken(authorization, context);
+    const graphTokenResponse = await getAccessToken(authorization, context);
     try {
       // if (
       //   graphTokenResponse &&
@@ -38,10 +38,10 @@ export async function getUserData(req: any, res: any, context: any) {
         process.env.QUERY_PARAM_SEGMENT ||
         `?$filter= conversationId eq '${encodeURIComponent(
           req.query.conversationId
-        )}'`;
+        )}'&$format=json&$value`;
 
       const graphData = await getGraphData(
-        authorization,
+        graphTokenResponse.access_token,
         graphUrlSegment,
         graphQueryParamSegment
       );
@@ -112,14 +112,37 @@ export async function getGraphData(
 function transformToMailArray(obj) {
   const mails = [];
   const messages = obj.value;
-  messages.forEach((message) => {
-    const mail = {
-      subject: message.subject,
-      body: message.body.content,
-      receiver: message.toRecipients[0].emailAddress.address,
-      sender: message.sender.emailAddress.address,
-    };
-    mails.push(mail);
+  messages.forEach((message: MailModel) => {
+    const {
+      bodyPreview,
+      id,
+      changeKey,
+      categories,
+      receivedDateTime,
+      createdDateTime,
+      lastModifiedDateTime,
+      hasAttachments,
+      internetMessageId,
+      parentFolderId,
+      conversationId,
+      conversationIndex,
+      isDeliveryReceiptRequested,
+      isReadReceiptRequested,
+      isRead,
+      isDraft,
+      webLink,
+      inferenceClassification,
+      flag,
+      ...rest
+    } = message;
+    delete rest["@odata.etag"];
+    // const mail = {
+    //   subject: message.subject,
+    //   body: message.body.content,
+    //   receiver: message.toRecipients[0].emailAddress.address,
+    //   sender: message.sender.emailAddress.address,
+    // };
+    mails.push(rest);
   });
   return mails;
 }

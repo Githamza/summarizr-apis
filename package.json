@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc&& npm run copy-ts",
-    "copy-ts": "cpy 'utils/summarizeSchemaModel.ts' 'utils/ImproveReplySchemaModel.ts' 'utils/quickReplyModel.ts' dist",
+    "copy-ts": "cpy 'models/summarizeSchemaModel.ts' 'models/ImproveReplySchemaModel.ts' 'models/quickReplyModel.ts' 'models/questionsToanswerModel.ts' 'models/mailExchangeToClearContextModel.ts' 'models/mailExchangeCleaningModel.ts' dist",
     "watch": "tsc -w",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",

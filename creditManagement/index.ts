@@ -32,7 +32,8 @@ const httpTrigger: AzureFunction = async function (
             upn: req.query.upn,
             name: req.query.name,
             unique_name: req.query.unique_name,
-            credits: 30,
+            credits: 20,
+            alldata: JSON.stringify(req.query) || null,
           });
           context.res.body = { ...res, isFirstTime: true };
         } else {

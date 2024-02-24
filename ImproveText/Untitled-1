@@ -1,0 +1,159 @@
+{
+  MailCleaningResult: {
+    type: "mailExchangeCleaning",
+    mailExchangesCleanedObjectArray: [
+      {
+        sentDateTime: "2023-11-17T19:41:19Z",
+        subject: "Issue when purchasing a subscription of my add-in  ",
+        importance: "normal",
+        body: {
+          contentType: "text",
+          content: "Hi Oscar ,\r\n\r\nI was trying to buy a subscription of my outlook add-in in the AppSource marketplace\r\n\r\n[cid:d8c9e46b-5ee7-4017-b0dc-b28d5e1617cf]\r\n\r\nWhen I click on Configure my saas offer I get this:\r\n\r\n[cid:e3b7ca32-68ac-417f-94a4-1734aac855b0]\r\n\r\n\r\nWhen I check the application Id , I see that it's the fulfillment app in azure portal.\r\n\r\n[cid:9557429c-8441-4555-8efa-0fe6adf56d03]\r\nI have created this using the saas accelerator\r\n\r\n[cid:45aa1e71-80eb-4c65-847f-bdac0d4f569c]\r\n\r\nFor information I have not done the optional steps here, because I suppose that they will be created automatically.\r\n\r\n[cid:d92db6b1-4f3a-407e-9cb7-8ab9b34b0e4d]\r\n\r\nDo you have an Idea Why I get this issue ?\r\n\r\nThanks\r\n\r\nHamza Haddad\r\nFullstack Web Developer\r\nMicrosoft 365 Developer\r\nhmz-digital.fr<https://www.hmz-digital.fr>",
+        },
+        sender: {
+          emailAddress: {
+            name: "Hamza Haddad",
+            address: "hhamza@hmz-digital.fr",
+          },
+        },
+        from: {
+          emailAddress: {
+            name: "Hamza Haddad",
+            address: "hhamza@hmz-digital.fr",
+          },
+        },
+        toRecipients: [
+          {
+            emailAddress: {
+              name: "Oscar Gonzalez Fernandez (International Supplier)",
+              address: "v-osfer@microsoft.com",
+            },
+          },
+        ],
+        ccRecipients: [
+          {
+            emailAddress: {
+              name: "Valerie  Maria Lucie Mathias (International Supplier)",
+              address: "v-vmathias@microsoft.com",
+            },
+          },
+        ],
+        bccRecipients: [
+        ],
+        replyTo: [
+        ],
+      },
+      {
+        sentDateTime: "2023-11-17T19:41:42Z",
+        subject: "Automatic reply: Issue when purchasing a subscription of my add-in  ",
+        importance: "normal",
+        body: {
+          contentType: "text",
+          content: "Dear sender,\r\n\r\n\r\n\r\nI am currently out of the office on annual leave from 11/17/23 until 11/22/23.\r\n\r\nIf you require an immediate response then please contact Diana Belakova at <v-dbelakova@microsoft.com> instead, kindly cc me so I can keep track.\r\n\r\n\r\n\r\nBest regards,\r\n\r\nValérie Mathias\r\n\r\nISV Engagement Manager\r\n\r\n[Logo  Description automatically generated]\r\n\r\n  \r\n\r\nPrivacy Statement<https://go.microsoft.com/fwlink/?LinkId=521839>\r\n\r\nMicrosoft Corporation\r\n\r\nOne Microsoft Way\r\n\r\nRedmond, WA 98052\r\n\r\nYou’re receiving these emails as part of ISV Success Program. If you’d like to stop receiving them, please contact appbldr@microsoft.com\r\n",
+        },
+        sender: {
+          emailAddress: {
+            name: "Valerie  Maria Lucie Mathias (International Supplier)",
+            address: "v-vmathias@microsoft.com",
+          },
+        },
+        from: {
+          emailAddress: {
+            name: "Valerie  Maria Lucie Mathias (International Supplier)",
+            address: "v-vmathias@microsoft.com",
+          },
+        },
+        toRecipients: [
+          {
+            emailAddress: {
+              name: "Hamza Haddad",
+              address: "hhamza@hmz-digital.fr",
+            },
+          },
+        ],
+        ccRecipients: [
+        ],
+        bccRecipients: [
+        ],
+        replyTo: [
+        ],
+      },
+      {
+        sentDateTime: "2023-11-18T12:46:02Z",
+        subject: "Re: Issue when purchasing a subscription of my add-in  ",
+        importance: "normal",
+        body: {
+          contentType: "text",
+          content: "I Oscar ,\r\n\r\nI resolved the issue , it was the clientSecret not updated in the portal app settings , I set it manually and now it's ok .\r\n\r\nI'm able to purchase a license and attributes it to a user.\r\n\r\nI'll try next step to check the usageRights api in order to limit or not user to access app.\r\n\r\nThanks,\r\n\r\nHamza Haddad\r\nFullstack Web Developer\r\nMicrosoft 365 Developer\r\nhmz-digital.fr<https://www.hmz-digital.fr/>\r\n________________________________\r\nFrom: Valerie Maria Lucie Mathias (International Supplier) <v-vmathias@microsoft.com>\r\nSent: Friday, November 17, 2023 20:41\r\nTo: Hamza Haddad <hhamza@hmz-digital.fr>\r\nSubject: Automatic reply: Issue when purchasing a subscription of my add-in\r\n\r\n\r\nDear sender,\r\n\r\n\r\n\r\nI am currently out of the office on annual leave from 11/17/23 until 11/22/23.\r\n\r\nIf you require an immediate response then please contact Diana Belakova at <v-dbelakova@microsoft.com> instead, kindly cc me so I can keep track.\r\n\r\n\r\n\r\nBest regards,\r\n\r\nValérie Mathias\r\n\r\nISV Engagement Manager\r\n\r\n[Logo  Description automatically generated]\r\n\r\n  \r\n\r\nPrivacy Statement<https://go.microsoft.com/fwlink/?LinkId=521839>\r\n\r\nMicrosoft Corporation\r\n\r\nOne Microsoft Way\r\n\r\nRedmond, WA 98052\r\n\r\nYou’re receiving these emails as part of ISV Success Program. If you’d like to stop receiving them, please contact appbldr@microsoft.com\r\n",
+        },
+        sender: {
+          emailAddress: {
+            name: "Hamza Haddad",
+            address: "hhamza@hmz-digital.fr",
+          },
+        },
+        from: {
+          emailAddress: {
+            name: "Hamza Haddad",
+            address: "hhamza@hmz-digital.fr",
+          },
+        },
+        toRecipients: [
+          {
+            emailAddress: {
+              name: "Valerie  Maria Lucie Mathias (International Supplier)",
+              address: "v-vmathias@microsoft.com",
+            },
+          },
+        ],
+        ccRecipients: [
+        ],
+        bccRecipients: [
+        ],
+        replyTo: [
+        ],
+      },
+      {
+        sentDateTime: "2023-11-20T10:49:53Z",
+        subject: "RE: Issue when purchasing a subscription of my add-in  ",
+        importance: "normal",
+        body: {
+          contentType: "text",
+          content: "Hello Hamza,\r\n\r\nHope you are doing well.\r\n\r\nUnfortunately this is the only error I found in SaaS accelerator documentation:\r\n\r\n[cid:image001.png@01DA1BA6.3E3E43C0]\r\n\r\nhttps://microsoft.github.io/Mastering-the-Marketplace/saas-accelerator/pdfs/10-renewing-application-secrets.pdf\r\n\r\nhttps://youtu.be/YZSgR_Qgiew?si=x_KI5rYnUtUXzrt1\r\n\r\nhttps://microsoft.github.io/Mastering-the-Marketplace/saas-accelerator/\r\n\r\n\r\nIt looks like it is related to the lifetime of the token, but I am not sure, as this is handled by support team. believe it would be best to open a ticket with support to confirm whether the issue is indeed related to the token or if it pertains to another matter concerning the Secret.\r\n\r\nKind Regards,\r\n\r\n\r\nÓscar González Fernández\r\nISV Modern Workplace Technical Specialist\r\nAccenture on Behalf of Microsoft\r\nv-osfer@microsoft.com\r\n\r\n[Microsoft Logo]\r\n\r\nThis e-mail and any attachment contain or may contain confidential information and are intended solely for the use of the person to whom it is addressed or directed. If you are not the intended recipient, or if you have received this e-mail in error, please notify the sender immediately by return mail and destroy this e-mail and attachment.\r\n\r\nFrom: Hamza Haddad <hhamza@hmz-digital.fr>\r\nSent: 17 November 2023 20:41\r\nTo: Oscar Gonzalez Fernandez (Accenture Limited) <v-osfer@microsoft.com>\r\nCc: Valerie Maria Lucie Mathias (International Supplier) <v-vmathias@microsoft.com>\r\nSubject: [EXTERNAL] Issue when purchasing a subscription of my add-in\r\n\r\nHi Oscar ,\r\n\r\nI was trying to buy a subscription of my outlook add-in in the AppSource marketplace\r\n\r\n[cid:image003.png@01DA1BA6.3E3E43C0]\r\n\r\nWhen I click on Configure my saas offer I get this:\r\n[cid:image004.png@01DA1BA6.3E3E43C0]\r\n\r\n\r\nWhen I check the application Id , I see that it's the fulfillment app in azure portal.\r\n\r\n[cid:image005.png@01DA1BA6.3E3E43C0]\r\nI have created this using the saas accelerator\r\n\r\n[cid:image006.png@01DA1BA6.3E3E43C0]\r\n\r\nFor information I have not done the optional steps here, because I suppose that they will be created automatically.\r\n[cid:image007.png@01DA1BA6.3E3E43C0]\r\n\r\nDo you have an Idea Why I get this issue ?\r\n\r\nThanks\r\n\r\nHamza Haddad\r\nFullstack Web Developer\r\nMicrosoft 365 Developer\r\nhmz-digital.fr<https://www.hmz-digital.fr/>\r\n",
+        },
+        sender: {
+          emailAddress: {
+            name: "Oscar Gonzalez Fernandez (Accenture Limited)",
+            address: "v-osfer@microsoft.com",
+          },
+        },
+        from: {
+          emailAddress: {
+            name: "Oscar Gonzalez Fernandez (Accenture Limited)",
+            address: "v-osfer@microsoft.com",
+          },
+        },
+        toRecipients: [
+          {
+            emailAddress: {
+              name: "Hamza Haddad",
+              address: "hhamza@hmz-digital.fr",
+            },
+          },
+        ],
+        ccRecipients: [
+          {
+            emailAddress: {
+              name: "Valerie  Maria Lucie Mathias (International Supplier)",
+              address: "v-vmathias@microsoft.com",
+            },
+          },
+        ],
+        bccRecipients: [
+        ],
+        replyTo: [
+        ],
+      },
+    ],
+  },
+}
