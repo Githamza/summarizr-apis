@@ -3,9 +3,6 @@
 export interface SummarizedMailItems {
   type: "SummarizedMailItems";
 
-  // language that user asked for to have summary
-  summarizationLanguage: "arabic" | "english" | "french" | "spanish";
-
   // mail summary in 300 word maximum
   summaryShortParagraph: string;
 
