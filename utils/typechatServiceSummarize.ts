@@ -28,11 +28,11 @@ export const getSummary = async (
   return new Promise(async (resolve, reject) => {
     let response;
     try {
-      response = await translator.translate(mails, [
+      response = await translator.translate(JSON.stringify(mails), [
         {
           role: "system",
           content: `Act as an expert in text summarizing.
-            Yoy should summarize the email conversation in ${language} language
+            Yoy should summarize the email conversation in : ${language.toUpperCase()} 
             `,
         },
       ]);

@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration } from "openai";
 import { errorHandler } from "../utils/handleErrors";
 import axios from "axios";
 
@@ -9,7 +9,8 @@ import {
   MailDetailedSummary,
   MailDetailedSummaryResponse,
 } from "../models/mailExchangeToClearContextModel";
-import { responseTextLength } from "../models/replyType.model";
+
+import { cleanMailHistoryObject } from "../utils/transformFunctions";
 
 const configuration = new Configuration({
   basePath: `${process.env.AZURE_OPENAI_ENDPOIN_IMPROVE_TEXT}`,
@@ -36,47 +37,45 @@ const httpTrigger: AzureFunction = async function (
     // console.log(mailBodies);
 
     let textReformuled;
-
+    let mailHistory = cleanMailHistoryObject(mailsHistoric.data);
     let cleanedMailExchange: MailDetailedSummaryResponse;
+
     try {
       cleanedMailExchange = (
-        await getDetailedMailSummary(
-          JSON.stringify(mailsHistoric.data[mailsHistoric.data.length - 1]),
-          context
-        )
+        await getDetailedMailSummary(JSON.stringify(mailHistory), context)
       ).data;
     } catch (error) {
       errorHandler(error, context);
       console.log(error);
     }
+    const mailInfos = mailsHistoric.data;
+    const mailToReplyTo = req.body.mailBody;
+    const mailInfosResume = (cleanedMailExchange.summary as MailDetailedSummary)
+      .summaryText;
+    // const prompt2 = `
+    //                 ${JSON.stringify(mailInfos)}.`;
 
-    const prompt2 = `
-                    ${JSON.stringify(
-                      (cleanedMailExchange.summary as MailDetailedSummary)
-                        .summaryText
-                    )}.`;
+    // const prompt3 = `The draft reply to rewrite in professional style:  \n ************* \n "${
+    //   req.body.replyText
+    // }" \n**********\n
 
-    const prompt3 = `The draft reply to rewrite in professional style:  \n ************* \n "${
-      req.body.replyText
-    }" \n**********\n 
-                   
-                    \n Conversation mail to help crafting the reply  : \n ######  ${JSON.stringify(
-                      (cleanedMailExchange.summary as MailDetailedSummary)
-                        .summaryText
-                    )} \n
-                     #####. \n  \n`;
+    //                 \n Conversation mail to help crafting the reply  : \n ######  ${JSON.stringify(
+    //                   mailInfos
+    //                 )} \n
+    //                  #####. \n  \n`;
 
     const draftReply = req.body.replyText;
-    const cleanedMailExchangeText = (
-      cleanedMailExchange.summary as MailDetailedSummary
-    ).summaryText;
-    const replyObject = { draftReply, cleanedMailExchangeText };
+    // const cleanedMailExchangeText = (
+    //   cleanedMailExchange.summary as MailDetailedSummary
+    // ).summaryText;
 
     try {
       textReformuled = await getReply(
-        req.body.replyText?.length > 0 ? prompt3 : prompt2,
         context,
-        replyObject,
+        draftReply,
+        mailInfos,
+        mailInfosResume,
+        mailToReplyTo,
         req.body.replyOption,
         !!req.body.replyText
       );

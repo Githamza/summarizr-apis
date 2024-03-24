@@ -1,7 +1,7 @@
-// this is schema for writing efficent professional mails based on mail  conversation.
+// this is schema for writing efficent professional replies based on mail  conversation.
 
-export interface ProposeReplyFromConversationHistory {
-  mailReply: ReplyFromConversationHistory | UnknownText;
+export interface replySuggestionResponse {
+  mailReply: replySuggestion | UnknownText;
 }
 
 export interface UnknownText {
@@ -9,8 +9,8 @@ export interface UnknownText {
   text: string; // The text that wasn't understood
 }
 
-export interface ReplyFromConversationHistory {
+export interface replySuggestion {
   type: "reply";
-  //the  professional reply to  mail conversation
-  generatedProfessionalMailReply: string;
+  //the reply suggestion text
+  mailReply: string;
 }

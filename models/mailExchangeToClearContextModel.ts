@@ -1,4 +1,4 @@
-// the following schema is transform a json object of mail conversation to a text summary
+// the following schema is transform a json object of mail conversation to a conext text summarize of the mail conversation
 
 export interface MailDetailedSummaryResponse {
   //the detailed summary of the json formated mail conversation
@@ -11,5 +11,6 @@ export interface UnknownText {
 }
 export interface MailDetailedSummary {
   type: "mailDetailedSummary";
+  // conversation summary text
   summaryText: string;
 }

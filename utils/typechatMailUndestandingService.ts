@@ -29,12 +29,19 @@ export const getDetailedMailSummary = async (
   return new Promise(async (resolve, reject) => {
     let response;
     try {
-      response = await translator.translate(`${mails}`, [
-        {
-          role: "system",
-          content: "act like  an expert in mails understanding ",
-        },
-      ]);
+      response = await translator.translate(
+        `[THE MAIL CONVERSATION CONTEXT TEXT]: ${mails}`,
+        [
+          {
+            role: "system",
+            content: `act like  an expert in mails understanding. I will provide you with a raw text that contains the whole mail exchange. \n 
+          You have to understand the exchange beacause later I'll provide you with that understanding resume output and  ask you to provide me with a professional reply.
+          Focus on what is important to make a efficient reply to the conversation. \n
+          The Receipient of the mail is the person who will reply to the mail. which is me  \n
+          your output show be detailed enough so that when I provide you with the mail content you can ask me questions about the mail content to get what I would reply to the mail.`,
+          },
+        ]
+      );
       context.log("response typechat", response);
     } catch (error) {
       context.log("response typechat error");

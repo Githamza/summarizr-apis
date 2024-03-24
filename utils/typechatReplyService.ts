@@ -3,20 +3,22 @@ import fs from "fs";
 import path from "path";
 import { RewordedDraftTextResponse } from "../models/improveReplySchemaModel";
 import { Context } from "@azure/functions";
-import { ProposeReplyFromConversationHistory } from "../models/quickReplyModel";
+import { replySuggestionResponse } from "../models/quickReplyModel";
 import { responseTextLength } from "../models/replyType.model";
 
 const model = createLanguageModel(process.env);
 export const getReply = async (
-  mails: string,
   context: Context,
-  replyObject: any,
+  replyText,
+  mailInfos,
+  mailInfosResume,
+  mailToReplyTo,
   responseLength: string,
-  replyText?: boolean
+  hasreplyText?: boolean
 ): Promise<Success<RewordedDraftTextResponse>> => {
   let schema;
   try {
-    if (replyText) {
+    if (hasreplyText) {
       schema = fs.readFileSync(
         path.join(__dirname, "/../models/improveReplySchemaModel.ts"),
         "utf8"
@@ -32,7 +34,7 @@ export const getReply = async (
   }
   let translator;
   let response;
-  if (replyText) {
+  if (hasreplyText) {
     context.log("improve");
     translator = createJsonTranslator<RewordedDraftTextResponse>(
       model,
@@ -44,27 +46,29 @@ export const getReply = async (
       translator,
       chatArray,
       context,
-      mails,
       responseLength,
       replyText,
-      replyObject
+      mailInfos,
+      mailInfosResume,
+      mailToReplyTo
     );
   } else {
     const chatArray = [quickReplyAssistant];
     context.log("improve");
-    translator = createJsonTranslator<ProposeReplyFromConversationHistory>(
+    translator = createJsonTranslator<replySuggestionResponse>(
       model,
       schema,
-      "ProposeReplyFromConversationHistory"
+      "replySuggestionResponse"
     );
     response = await superTranslate(
       translator,
       chatArray,
       context,
-      mails,
       responseLength,
       replyText,
-      replyObject
+      mailInfos,
+      mailInfosResume,
+      mailToReplyTo
     );
   }
   return response;
@@ -74,10 +78,11 @@ const superTranslate = (
   translator: any,
   assistant: any,
   context: Context,
-  mails: string,
   responseLength: string,
-  replyText?: boolean,
-  replyObject?: any
+  replyText: boolean,
+  mailInfos: any,
+  mailInfosResume: any,
+  mailToReplyTo: any
 ) => {
   const replyLengthText =
     responseTextLength[responseLength.toLocaleLowerCase()].replyLength;
@@ -88,17 +93,20 @@ const superTranslate = (
         response = await translator.translate(
           `I have drafted a reply to an email conversation, but I need help refining it to sound more professional and incorporate appropriate corporate jargon. Here is my draft reply:
 
-"DRAFT: ${replyObject.draftReply}"
+"DRAFT: ${replyText}"
 
-Based on the context of the email conversation below, please help me revise my draft to create a polished and professional response.
-
-
-The reply should be  ${replyLengthText} .
+Based on the context of the email conversation below, please help me revise my draft to create a brief polished and professional response.
 
 
-Email Conversation Context: ${JSON.stringify(
-            replyObject.cleanedMailExchangeText
-          )}
+The Receipient of the mail is the person who will reply to the mail. which is me  \n
+
+
+The reply should be ${responseLength},   ${replyLengthText} maximum .\n \n
+ 
+[SUMMARY OF THE CONVERSATION] : ${JSON.stringify(mailInfosResume)} \ 
+
+[THE CONVERSATION] : ${JSON.stringify(mailInfos)}
+
 
 Please provide a revised version of my draft that maintains the intended message but enhances the tone, clarity, and formality appropriate for a business setting.`,
           assistant
@@ -106,14 +114,25 @@ Please provide a revised version of my draft that maintains the intended message
       } else {
         response = await translator.translate(
           `
-Based on the context of the email conversation below, please help me write a polished and professional response.
+I have received an email: 
+
+           ${mailToReplyTo.body} \n \n \n \n
+
+           your reply should be ${responseLength},   ${replyLengthText} maximum .\n \n
+
+I provide you with all of the mail conversation: \n
+ ${JSON.stringify(mailInfos)} \n \n \n \n
 
 
-The reply should be  ${replyLengthText} .
+HERE'S THE MAIL CONVERSATION CONTEXT TEXT: ${JSON.stringify(
+            mailInfosResume
+          )} \n \n 
 
-
-Email Conversation Context: ${JSON.stringify(mails)}
-`
+[ SENDER INFORMATIONS ]: ${JSON.stringify(
+            mailInfos[mailInfos.length - 1].from.emailAdress
+          )} \n \n
+`,
+          assistant
         );
       }
       context.log("response typechat", response);
@@ -137,7 +156,8 @@ Email Conversation Context: ${JSON.stringify(mails)}
 const quickReplyAssistant = {
   role: "system",
   content: `Act as an expert mails writer. 
-      You should understand a mail conversation. and reply to the last mail sender in form of a professional mail with corporate jargon.
+      You should understand a mail conversation. and reply in form of a professional mail with corporate jargon to the  mail of sender that I'll provide you .
+      Please provide a revised version of my draft that maintains the intended message but enhances the tone, clarity, and formality appropriate for a business setting.
       `,
 };
 const replyWithdraftAssistant = {
