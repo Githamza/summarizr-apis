@@ -4,17 +4,6 @@ import { errorHandler } from "../utils/handleErrors";
 import axios from "axios";
 
 import { getReply } from "../utils/typechatReplyService";
-import { getDetailedMailSummary } from "../utils/typechatMailUndestandingService";
-import {
-  MailDetailedSummary,
-  MailDetailedSummaryResponse,
-} from "../models/mailExchangeToClearContextModel";
-
-import { cleanMailHistoryObject } from "../utils/transformFunctions";
-
-const configuration = new Configuration({
-  basePath: `${process.env.AZURE_OPENAI_ENDPOIN_IMPROVE_TEXT}`,
-});
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -30,51 +19,19 @@ const httpTrigger: AzureFunction = async function (
       { headers: { Authorization: req.headers.authorization } }
     );
 
-    // Todo : write a function that in a loop splits the mail history to an array where each mailsHistotic.data[i].body  is minus the last MailHistory.data[i=1].body
-
-    // Usage example:
-    // const mailBodies = splitMailHistory(mailsHistoric);
-    // console.log(mailBodies);
-
     let textReformuled;
-    let mailHistory = cleanMailHistoryObject(mailsHistoric.data);
-    let cleanedMailExchange: MailDetailedSummaryResponse;
 
-    try {
-      cleanedMailExchange = (
-        await getDetailedMailSummary(JSON.stringify(mailHistory), context)
-      ).data;
-    } catch (error) {
-      errorHandler(error, context);
-      console.log(error);
-    }
-    const mailInfos = mailsHistoric.data;
+    const mailInfos = mailsHistoric.data[mailsHistoric.data.length - 1];
     const mailToReplyTo = req.body.mailBody;
-    const mailInfosResume = (cleanedMailExchange.summary as MailDetailedSummary)
-      .summaryText;
-    // const prompt2 = `
-    //                 ${JSON.stringify(mailInfos)}.`;
-
-    // const prompt3 = `The draft reply to rewrite in professional style:  \n ************* \n "${
-    //   req.body.replyText
-    // }" \n**********\n
-
-    //                 \n Conversation mail to help crafting the reply  : \n ######  ${JSON.stringify(
-    //                   mailInfos
-    //                 )} \n
-    //                  #####. \n  \n`;
 
     const draftReply = req.body.replyText;
-    // const cleanedMailExchangeText = (
-    //   cleanedMailExchange.summary as MailDetailedSummary
-    // ).summaryText;
 
     try {
       textReformuled = await getReply(
         context,
         draftReply,
         mailInfos,
-        mailInfosResume,
+        // mailInfosResume,
         mailToReplyTo,
         req.body.replyOption,
         !!req.body.replyText

@@ -21,12 +21,7 @@
       "label": "npm install (functions)",
       "command": "npm install"
     },
-    {
-      "type": "shell",
-      "label": "npm link (functions)",
-      "command": "npm link typechat",
-      "dependsOn": "npm install (functions)"
-    },
+
     {
       "type": "shell",
       "label": "npm prune (functions)",
@@ -38,7 +33,7 @@
       "type": "shell",
       "label": "npm clean (functions)",
       "command": "npm run clean",
-      "dependsOn": "npm link (functions)"
+      "dependsOn": "npm install (functions)"
     }
   ]
 }

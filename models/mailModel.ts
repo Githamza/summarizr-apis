@@ -1,4 +1,4 @@
-interface MailModel {
+export interface MailModel {
   "@odata.etag": string;
   id: string;
   createdDateTime: string;

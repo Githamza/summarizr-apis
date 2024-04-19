@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { Context } from "@azure/functions";
 import { QuestionsListToReplyToMail } from "../models/questionsToanswerModel";
+import { createTypeScriptJsonValidator } from "typechat/ts";
 
 const model = createLanguageModel(process.env);
 export const getQuestions = async (
@@ -20,10 +21,13 @@ export const getQuestions = async (
   }
   let translator;
   context.log("summariz");
-  translator = createJsonTranslator<QuestionsListToReplyToMail>(
-    model,
+  const validator = createTypeScriptJsonValidator<QuestionsListToReplyToMail>(
     schema,
     "QuestionsListToReplyToMail"
+  );
+  translator = createJsonTranslator<QuestionsListToReplyToMail>(
+    model,
+    validator
   );
   context.log("typechat");
   return new Promise(async (resolve, reject) => {

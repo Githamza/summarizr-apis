@@ -1,4 +1,5 @@
 import { MailHistory } from "../models/mailGraphApiModel";
+
 // keep only important object properties for ai summarization
 export const cleanMailHistoryObject = (
   mailHistoryObject: MailHistory[]

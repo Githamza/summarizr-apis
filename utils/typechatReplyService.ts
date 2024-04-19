@@ -5,13 +5,14 @@ import { RewordedDraftTextResponse } from "../models/improveReplySchemaModel";
 import { Context } from "@azure/functions";
 import { replySuggestionResponse } from "../models/quickReplyModel";
 import { responseTextLength } from "../models/replyType.model";
+import { createTypeScriptJsonValidator } from "typechat/ts";
 
 const model = createLanguageModel(process.env);
 export const getReply = async (
   context: Context,
   replyText,
   mailInfos,
-  mailInfosResume,
+  // mailInfosResume,
   mailToReplyTo,
   responseLength: string,
   hasreplyText?: boolean
@@ -36,10 +37,13 @@ export const getReply = async (
   let response;
   if (hasreplyText) {
     context.log("improve");
-    translator = createJsonTranslator<RewordedDraftTextResponse>(
-      model,
+    const validator = createTypeScriptJsonValidator<RewordedDraftTextResponse>(
       schema,
       "RewordedDraftTextResponse"
+    );
+    translator = createJsonTranslator<RewordedDraftTextResponse>(
+      model,
+      validator
     );
     const chatArray = [replyWithdraftAssistant];
     response = await superTranslate(
@@ -49,16 +53,19 @@ export const getReply = async (
       responseLength,
       replyText,
       mailInfos,
-      mailInfosResume,
+      // mailInfosResume,
       mailToReplyTo
     );
   } else {
     const chatArray = [quickReplyAssistant];
     context.log("improve");
-    translator = createJsonTranslator<replySuggestionResponse>(
-      model,
+    const validator = createTypeScriptJsonValidator<replySuggestionResponse>(
       schema,
       "replySuggestionResponse"
+    );
+    translator = createJsonTranslator<replySuggestionResponse>(
+      model,
+      validator
     );
     response = await superTranslate(
       translator,
@@ -67,7 +74,7 @@ export const getReply = async (
       responseLength,
       replyText,
       mailInfos,
-      mailInfosResume,
+      // mailInfosResume,
       mailToReplyTo
     );
   }
@@ -81,7 +88,7 @@ const superTranslate = (
   responseLength: string,
   replyText: boolean,
   mailInfos: any,
-  mailInfosResume: any,
+  // mailInfosResume: any,
   mailToReplyTo: any
 ) => {
   const replyLengthText =
@@ -103,7 +110,6 @@ The Receipient of the mail is the person who will reply to the mail. which is me
 
 The reply should be ${responseLength},   ${replyLengthText} maximum .\n \n
  
-[SUMMARY OF THE CONVERSATION] : ${JSON.stringify(mailInfosResume)} \ 
 
 [THE CONVERSATION] : ${JSON.stringify(mailInfos)}
 
@@ -124,13 +130,9 @@ I provide you with all of the mail conversation: \n
  ${JSON.stringify(mailInfos)} \n \n \n \n
 
 
-HERE'S THE MAIL CONVERSATION CONTEXT TEXT: ${JSON.stringify(
-            mailInfosResume
-          )} \n \n 
 
-[ SENDER INFORMATIONS ]: ${JSON.stringify(
-            mailInfos[mailInfos.length - 1].from.emailAdress
-          )} \n \n
+
+[ SENDER INFORMATIONS ]: ${JSON.stringify(mailInfos.from.emailAdress)} \n \n
 `,
           assistant
         );

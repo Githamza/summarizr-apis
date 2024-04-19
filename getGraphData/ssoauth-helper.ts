@@ -4,7 +4,6 @@
  * This file defines the routes within the authRoute router.
  */
 
-import fetch from "node-fetch";
 import form from "form-urlencoded";
 import jwt from "jsonwebtoken";
 import { JwksClient } from "jwks-rsa";
@@ -14,12 +13,16 @@ import axios from "axios";
 const DISCOVERY_KEYS_ENDPOINT =
   "https://login.microsoftonline.com/common/discovery/v2.0/keys";
 
-export async function getAccessToken(authorization: string,context:any): Promise<any> {
+export async function getAccessToken(
+  authorization: string,
+  context: any
+): Promise<any> {
   if (!authorization) {
     let error = new Error("No Authorization header was found.");
     return Promise.reject(error);
   } else {
-    const scopeName: string = process.env.SCOPE || "https://graph.microsoft.com/.default";
+    const scopeName: string =
+      process.env.SCOPE || "https://graph.microsoft.com/.default";
     const [, /* schema */ assertion] = authorization.split(" ");
 
     const tokenScopes = (jwt.decode(assertion) as jwt.JwtPayload).scp.split(
@@ -45,7 +48,7 @@ export async function getAccessToken(authorization: string,context:any): Promise
     const tenant: string = "common";
     const tokenURLSegment: string = "oauth2/v2.0/token";
     const encodedForm = form(formParams);
-    context.log("formparams",formParams)
+    context.log("formparams", formParams);
     let tokenResponse;
     try {
       tokenResponse = await axios.post(
@@ -58,16 +61,15 @@ export async function getAccessToken(authorization: string,context:any): Promise
           },
         }
       );
-
     } catch (error) {
       context.log("error here", error);
     }
-    context.log("token response ",tokenResponse)
+    context.log("token response ", tokenResponse);
     return tokenResponse.data;
   }
 }
 
-export function validateJwt(req, res,context): Promise<boolean> {
+export function validateJwt(req, res, context): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const authHeader = req.headers.authorization;
     if (authHeader) {
@@ -83,7 +85,7 @@ export function validateJwt(req, res,context): Promise<boolean> {
         (err) => {
           if (err) {
             context.log(err);
-            reject(res.send({status:403,body:err.message}));
+            reject(res.send({ status: 403, body: err.message }));
             //return res.sendStatus(403);
           }
 

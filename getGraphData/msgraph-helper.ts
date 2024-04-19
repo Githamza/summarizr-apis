@@ -8,6 +8,7 @@ import * as createError from "http-errors";
 import axios from "axios";
 import { resolve } from "path";
 import { rejects } from "assert";
+import { MailModel } from "../models/mailModel";
 
 /* global process */
 
